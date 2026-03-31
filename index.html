@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alur Mesin Pabrik Pengolahan Minyak Sawit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber:    #E8873A;
+    --gold:     #F5C842;
+    --deep:     #1A1208;
+    --mid:      #2E1E08;
+    --green:    #4A7C3F;
+    --lightbg:  #FDF5E6;
+    --cream:    #FAF0D7;
+    --rust:     #C0522A;
+    --shadow:   rgba(30,10,0,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--deep);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.4;
+  }
+
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .header-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(245,200,66,0.3);
+    padding: 6px 18px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 6vw, 72px);
+    line-height: 1;
+    color: var(--cream);
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .header h1 span { color: var(--amber); }
+
+  .header p {
+    color: rgba(250,240,215,0.55);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── TBS INPUT BANNER ── */
+  .input-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #2E1E08, #3D2A0A);
+    border: 1px solid rgba(232,135,58,0.3);
+    border-radius: 12px;
+    padding: 18px 32px;
+    margin-bottom: 40px;
+    animation: fadeDown 0.8s 0.1s ease both;
+  }
+
+  .input-banner .icon { font-size: 32px; }
+  .input-banner .text h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+  .input-banner .text p {
+    font-size: 12px;
+    color: rgba(250,240,215,0.5);
+  }
+
+  /* ── FLOW GRID ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── MACHINE CARD ── */
+  .machine-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    align-items: center;
+    gap: 0;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .machine-row:nth-child(1) { animation-delay: 0.15s; }
+  .machine-row:nth-child(2) { animation-delay: 0.25s; }
+  .machine-row:nth-child(3) { animation-delay: 0.35s; }
+  .machine-row:nth-child(4) { animation-delay: 0.45s; }
+  .machine-row:nth-child(5) { animation-delay: 0.55s; }
+  .machine-row:nth-child(6) { animation-delay: 0.65s; }
+
+  .machine-card {
+    background: linear-gradient(145deg, #2C1C07, #231505);
+    border: 1px solid rgba(232,135,58,0.2);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  }
+
+  .machine-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .machine-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(232,135,58,0.5);
+    box-shadow: 0 16px 48px rgba(232,135,58,0.12);
+  }
+  .machine-card:hover::before { opacity: 1; }
+
+  .card-icon {
+    width: 64px; height: 64px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .card-body { flex: 1; }
+
+  .step-num {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+
+  .machine-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--cream);
+    letter-spacing: 1.5px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .machine-desc {
+    font-size: 13px;
+    color: rgba(250,240,215,0.6);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .machine-detail {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(232,135,58,0.12);
+    color: var(--amber);
+    border: 1px solid rgba(232,135,58,0.2);
+  }
+
+  .tag.green {
+    background: rgba(74,124,63,0.15);
+    color: #7BC47F;
+    border-color: rgba(74,124,63,0.25);
+  }
+
+  /* ── OUTPUT SIDE (right info column) ── */
+  .side-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .output-pill {
+    background: rgba(245,200,66,0.07);
+    border: 1px solid rgba(245,200,66,0.2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: rgba(245,200,66,0.9);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .output-pill .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .waste-pill {
+    background: rgba(100,70,40,0.2);
+    border: 1px solid rgba(150,100,50,0.2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: rgba(200,160,100,0.7);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .waste-pill .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(200,160,100,0.5);
+    flex-shrink: 0;
+  }
+
+  /* ── CONNECTOR ── */
+  .connector-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 8px;
+  }
+
+  /* ── ARROW BETWEEN ROWS ── */
+  .arrow-row {
+    display: flex;
+    justify-content: flex-start;
+    padding-left: calc(33.33% + 26px);
+    margin: 4px 0;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .arrow-down {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .arrow-line {
+    width: 2px;
+    height: 28px;
+    background: linear-gradient(180deg, var(--amber), var(--rust));
+    position: relative;
+  }
+
+  .arrow-head {
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 10px solid var(--rust);
+  }
+
+  .arrow-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(232,135,58,0.5);
+    text-transform: uppercase;
+    margin-left: 10px;
+    align-self: center;
+    font-weight: 500;
+  }
+
+  /* ── OUTPUT FINAL ── */
+  .output-final {
+    margin-top: 40px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(245,200,66,0.3);
+    animation: fadeUp 0.8s 0.75s ease both;
+  }
+
+  .output-header {
+    background: linear-gradient(135deg, #3D2A0A, #4A3210);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(245,200,66,0.2);
+  }
+
+  .output-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+  .output-header p { font-size: 13px; color: rgba(250,240,215,0.5); }
+
+  .output-body {
+    background: linear-gradient(145deg, #1E1408, #160E04);
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .product-card {
+    background: rgba(245,200,66,0.06);
+    border: 1px solid rgba(245,200,66,0.15);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .product-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(245,200,66,0.4);
+  }
+  .product-card .p-icon { font-size: 28px; margin-bottom: 10px; }
+  .product-card h4 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .product-card p { font-size: 11px; color: rgba(250,240,215,0.45); line-height: 1.5; }
+
+  /* ── LEGEND ── */
+  .legend {
+    margin-top: 32px;
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.85s ease both;
+  }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: rgba(250,240,215,0.4);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Icon backgrounds per machine */
+  .icon-sterilizer  { background: linear-gradient(135deg, #7B3F20, #5C2A0F); }
+  .icon-thresher    { background: linear-gradient(135deg, #4A5720, #33400F); }
+  .icon-digester    { background: linear-gradient(135deg, #7B5120, #5C3A0F); }
+  .icon-press       { background: linear-gradient(135deg, #203D7B, #0F2A5C); }
+  .icon-clarifier   { background: linear-gradient(135deg, #207B5E, #0F5C45); }
+  .icon-dryer       { background: linear-gradient(135deg, #7B2020, #5C0F0F); }
+
+  /* Pulse on icons */
+  .machine-card:hover .card-icon {
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @media (max-width: 640px) {
+    .machine-row { grid-template-columns: 1fr; }
+    .side-info { display: none; }
+    .connector-col { display: none; }
+    .arrow-row { padding-left: 24px; }
+    .output-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-label">Diagram Proses Industri</div>
+    <h1>Pabrik Pengolahan<br><span>Minyak Sawit</span></h1>
+    <p>Alur proses dari Tandan Buah Segar (TBS) hingga Crude Palm Oil (CPO)</p>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-banner">
+    <div class="icon">🌴</div>
+    <div class="text">
+      <h3>INPUT: Tandan Buah Segar (TBS)</h3>
+      <p>Bahan baku kelapa sawit masuk ke lini produksi</p>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div class="flow">
+
+    <!-- 1. STERILIZER -->
+    <div class="machine-row">
+      <div class="machine-card">
+        <div class="card-icon icon-sterilizer">🍳</div>
+        <div class="card-body">
+          <div class="step-num">Step 01</div>
+          <div class="machine-name">Sterilizer</div>
+          <div class="machine-desc">Merebus TBS menggunakan uap panas bertekanan tinggi untuk melunakkan buah dan menginaktivasi enzim lipase penyebab asam lemak bebas.</div>
+          <div class="machine-detail">
+            <span class="tag">130–145 °C</span>
+            <span class="tag">2.8–3.0 bar</span>
+            <span class="tag">90 menit</span>
+          </div>
+        </div>
+      </div>
+      <div class="connector-col">
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--amber), var(--rust));"></div>
+        <div style="width:10px; height:10px; border-radius:50%; background: var(--amber); margin: 4px 0;"></div>
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--rust), var(--amber));"></div>
+      </div>
+      <div class="side-info">
+        <div class="output-pill"><span class="dot"></span>TBS matang & lunak</div>
+        <div class="output-pill"><span class="dot"></span>Enzim lipase diinaktivasi</div>
+        <div class="waste-pill"><span class="dot"></span>Kondensat air dibuang</div>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="arrow-row">
+      <div class="arrow-down">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">Buah direbus</div>
+    </div>
+
+    <!-- 2. THRESHER -->
+    <div class="machine-row">
+      <div class="machine-card">
+        <div class="card-icon icon-thresher">⚙️</div>
+        <div class="card-body">
+          <div class="step-num">Step 02</div>
+          <div class="machine-name">Thresher</div>
+          <div class="machine-desc">Drum berputar memisahkan brondolan buah dari tandan kosong dengan gaya sentrifugal dan bantingan mekanis.</div>
+          <div class="machine-detail">
+            <span class="tag">23–25 RPM</span>
+            <span class="tag">Rotary Drum</span>
+          </div>
+        </div>
+      </div>
+      <div class="connector-col">
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--amber), var(--rust));"></div>
+        <div style="width:10px; height:10px; border-radius:50%; background: var(--amber); margin: 4px 0;"></div>
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--rust), var(--amber));"></div>
+      </div>
+      <div class="side-info">
+        <div class="output-pill"><span class="dot"></span>Brondolan terpisah</div>
+        <div class="waste-pill"><span class="dot"></span>Tandan Kosong (Janjangan)</div>
+        <div class="waste-pill"><span class="dot"></span>→ Kompos / Bahan bakar boiler</div>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="arrow-row">
+      <div class="arrow-down">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">Brondolan</div>
+    </div>
+
+    <!-- 3. DIGESTER -->
+    <div class="machine-row">
+      <div class="machine-card">
+        <div class="card-icon icon-digester">🔄</div>
+        <div class="card-body">
+          <div class="step-num">Step 03</div>
+          <div class="machine-name">Digester</div>
+          <div class="machine-desc">Tangki berpengaduk melumatkan daging buah (mesocarp) untuk melepaskan sel-sel minyak dan memudahkan pengepresan.</div>
+          <div class="machine-detail">
+            <span class="tag">90–95 °C</span>
+            <span class="tag">Agitator</span>
+            <span class="tag">20–30 menit</span>
+          </div>
+        </div>
+      </div>
+      <div class="connector-col">
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--amber), var(--rust));"></div>
+        <div style="width:10px; height:10px; border-radius:50%; background: var(--amber); margin: 4px 0;"></div>
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--rust), var(--amber));"></div>
+      </div>
+      <div class="side-info">
+        <div class="output-pill"><span class="dot"></span>Massa daging buah lumat</div>
+        <div class="output-pill"><span class="dot"></span>Sel minyak terbuka</div>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="arrow-row">
+      <div class="arrow-down">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">Pulp lumat</div>
+    </div>
+
+    <!-- 4. SCREW PRESS -->
+    <div class="machine-row">
+      <div class="machine-card">
+        <div class="card-icon icon-press">🗜️</div>
+        <div class="card-body">
+          <div class="step-num">Step 04</div>
+          <div class="machine-name">Screw Press</div>
+          <div class="machine-desc">Dua ulir (screw) berlawanan arah memeras massa buah secara mekanis untuk mengekstrak crude palm oil dari serat dan biji.</div>
+          <div class="machine-detail">
+            <span class="tag">Tekanan Tinggi</span>
+            <span class="tag">Double Screw</span>
+            <span class="tag">OER ~21–23%</span>
+          </div>
+        </div>
+      </div>
+      <div class="connector-col">
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--amber), var(--rust));"></div>
+        <div style="width:10px; height:10px; border-radius:50%; background: var(--amber); margin: 4px 0;"></div>
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--rust), var(--amber));"></div>
+      </div>
+      <div class="side-info">
+        <div class="output-pill"><span class="dot"></span>Crude Palm Oil (CPO) kasar</div>
+        <div class="waste-pill"><span class="dot"></span>Fiber press → Bahan bakar</div>
+        <div class="waste-pill"><span class="dot"></span>Biji sawit → Kernel Plant</div>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="arrow-row">
+      <div class="arrow-down">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">Minyak kasar</div>
+    </div>
+
+    <!-- 5. CLARIFICATION TANK -->
+    <div class="machine-row">
+      <div class="machine-card">
+        <div class="card-icon icon-clarifier">🏺</div>
+        <div class="card-body">
+          <div class="step-num">Step 05</div>
+          <div class="machine-name">Clarification Tank</div>
+          <div class="machine-desc">Tangki settling besar memisahkan minyak, lumpur (sludge), dan air berdasarkan perbedaan berat jenis melalui pengendapan gravitasi dibantu panas.</div>
+          <div class="machine-detail">
+            <span class="tag">90–95 °C</span>
+            <span class="tag">Settling Tank</span>
+            <span class="tag">Gravity Sep.</span>
+          </div>
+        </div>
+      </div>
+      <div class="connector-col">
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--amber), var(--rust));"></div>
+        <div style="width:10px; height:10px; border-radius:50%; background: var(--amber); margin: 4px 0;"></div>
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--rust), var(--amber));"></div>
+      </div>
+      <div class="side-info">
+        <div class="output-pill"><span class="dot"></span>Minyak jernih (lapisan atas)</div>
+        <div class="waste-pill"><span class="dot"></span>Sludge → Sludge Separator</div>
+        <div class="waste-pill"><span class="dot"></span>Air → WWTP (IPAL)</div>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="arrow-row">
+      <div class="arrow-down">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="arrow-label">Minyak bersih</div>
+    </div>
+
+    <!-- 6. VACUUM DRYER -->
+    <div class="machine-row">
+      <div class="machine-card">
+        <div class="card-icon icon-dryer">💨</div>
+        <div class="card-body">
+          <div class="step-num">Step 06</div>
+          <div class="machine-name">Vacuum Dryer</div>
+          <div class="machine-desc">Minyak disemprotkan dalam ruang bertekanan vakum sehingga sisa kadar air menguap pada suhu rendah, menghasilkan CPO berkualitas standar ekspor.</div>
+          <div class="machine-detail">
+            <span class="tag">< 0.1% H₂O</span>
+            <span class="tag">Vakum 730 mmHg</span>
+            <span class="tag green">Final Product</span>
+          </div>
+        </div>
+      </div>
+      <div class="connector-col">
+        <div style="width:2px; height:40px; background: linear-gradient(180deg, var(--gold), transparent);"></div>
+        <div style="width:12px; height:12px; border-radius:50%; background: var(--gold); margin: 4px 0; box-shadow: 0 0 12px var(--gold);"></div>
+        <div style="width:2px; height:40px; background: transparent;"></div>
+      </div>
+      <div class="side-info">
+        <div class="output-pill"><span class="dot"></span>CPO kadar air < 0.1%</div>
+        <div class="output-pill"><span class="dot"></span>Siap penyimpanan & ekspor</div>
+      </div>
+    </div>
+
+  </div><!-- end .flow -->
+
+  <!-- FINAL OUTPUT -->
+  <div class="output-final" style="margin-top:48px;">
+    <div class="output-header">
+      <div style="font-size:36px;">🛢️</div>
+      <div>
+        <h2>OUTPUT AKHIR: CRUDE PALM OIL (CPO)</h2>
+        <p>Minyak sawit mentah siap kirim ke refinery untuk proses lanjutan</p>
+      </div>
+    </div>
+    <div class="output-body">
+      <div class="product-card">
+        <div class="p-icon">🏭</div>
+        <h4>CPO</h4>
+        <p>Crude Palm Oil — bahan baku minyak goreng, margarin, dan oleo-kimia</p>
+      </div>
+      <div class="product-card">
+        <div class="p-icon">🌰</div>
+        <h4>Palm Kernel</h4>
+        <p>Biji sawit diolah di Kernel Plant → Palm Kernel Oil (PKO)</p>
+      </div>
+      <div class="product-card">
+        <div class="p-icon">♻️</div>
+        <h4>By-product</h4>
+        <p>Fiber & cangkang → bahan bakar boiler; janjangan kosong → kompos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background: var(--gold);"></div>
+      Output utama
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: rgba(200,160,100,0.6);"></div>
+      Limbah / By-product
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: var(--amber);"></div>
+      Alur proses utama
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #7BC47F;"></div>
+      Produk final
+    </div>
+  </div>
+
+</div><!-- end .page -->
+</body>
+</html>
